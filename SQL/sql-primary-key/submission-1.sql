@@ -1,9 +1,19 @@
-
-create table students (
-    id INTEGER not null unique,
-    name TEXT not null,
-    age INTEGER not null
+create table users (
+    id INTEGER PRimary key,
+    username TEXT
 );
+
+create table videos (
+    id INTEGER primary key,
+    title text,
+    owner_id INTEGER
+);
+
+
+
+
+
+
 
 
 
@@ -11,21 +21,25 @@ create table students (
 
 -- Do not modify below this line --
 SELECT 
-    column_name, 
-    is_nullable,
-    column_default,
+    c.table_name,
+    c.column_name, 
+    c.data_type, 
     CASE 
-        WHEN column_name IN (
-            SELECT column_name 
-            FROM information_schema.table_constraints tc
-            JOIN information_schema.constraint_column_usage ccu 
-                ON tc.constraint_name = ccu.constraint_name
-            WHERE tc.table_name = 'students' 
-                AND tc.constraint_type IN ('UNIQUE')
-        ) THEN 'YES'
+        WHEN kcu.column_name IS NOT NULL THEN 'YES'
         ELSE 'NO'
-    END AS is_unique
+    END AS is_primary_key
 FROM 
-    information_schema.columns
+    information_schema.columns c
+LEFT JOIN 
+    information_schema.key_column_usage kcu
+    ON c.table_name = kcu.table_name 
+    AND c.column_name = kcu.column_name
+LEFT JOIN 
+    information_schema.table_constraints tc
+    ON kcu.constraint_name = tc.constraint_name
+    AND tc.constraint_type = 'PRIMARY KEY'
 WHERE 
-    table_name = 'students';
+    c.table_name IN ('users', 'videos')
+ORDER BY 
+    c.table_name,
+    c.ordinal_position;
